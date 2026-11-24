@@ -16,24 +16,27 @@ from datetime import UTC, datetime, timedelta
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from jose import JWTError, jwt
-from passlib.context import CryptContext
-
+import bcrypt
 from app.config import get_settings
 
 settings = get_settings()
 
 # ── Password hashing ──────────────────────────────────────────────
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def hash_password(plain: str) -> str:
     """Return bcrypt hash of a plaintext password."""
-    return _pwd_context.hash(plain)
+    pwd_bytes = plain.encode("utf-8")[:72]
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     """Return True if plain matches the stored bcrypt hash."""
-    return _pwd_context.verify(plain, hashed)
+    pwd_bytes = plain.encode("utf-8")[:72]
+    try:
+        return bcrypt.checkpw(pwd_bytes, hashed.encode("utf-8"))
+    except Exception:
+        return False
 
 
 # ── JWT ───────────────────────────────────────────────────────────

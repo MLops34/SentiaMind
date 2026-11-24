@@ -18,7 +18,7 @@ class EmotionScores(BaseModel):
     dominant_emotion: str
     model_confidence: float = Field(..., ge=0.0, le=1.0)
 
-    model_config = {"from_attributes": True}
+    model_config = {"from_attributes": True, "protected_namespaces": ()}
 
 
 # ── Crisis Response ───────────────────────────────────────────────

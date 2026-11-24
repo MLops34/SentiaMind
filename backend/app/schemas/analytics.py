@@ -49,6 +49,8 @@ class ForecastResponse(BaseModel):
     days: list[ForecastDay]
     model_version: str = "v1-wma"  # weighted moving average stub
 
+    model_config = {"protected_namespaces": ()}
+
 
 # ── Streaks ───────────────────────────────────────────────────────
 
