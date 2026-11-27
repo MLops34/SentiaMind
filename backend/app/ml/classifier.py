@@ -14,7 +14,6 @@ lexical heuristic classifier for zero-downtime offline execution.
 import os
 import re
 from typing import Dict
-import numpy as np
 
 from app.config import get_settings
 from app.schemas.journal import EmotionScores

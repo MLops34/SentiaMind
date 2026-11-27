@@ -1,7 +1,6 @@
 """
 SentiaMind — Pytest Fixtures and Async Client Setup
 """
-import asyncio
 import os
 import sys
 from pathlib import Path
@@ -11,7 +10,6 @@ backend_dir = Path(__file__).resolve().parent.parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
-import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine

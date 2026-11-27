@@ -30,6 +30,8 @@ const STORAGE_KEYS = {
   TOKEN: 'sentiamind_token',
 };
 
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || '';
+
 class ApiClient {
   private isOnlineBackend: boolean | null = null;
 
@@ -47,7 +49,7 @@ class ApiClient {
   // Quick health check to backend
   async checkBackendHealth(): Promise<boolean> {
     try {
-      const res = await fetch('/api/health', {
+      const res = await fetch(`${API_BASE}/api/health`, {
         method: 'GET',
         headers: { Accept: 'application/json' },
         signal: AbortSignal.timeout(1500),
@@ -110,7 +112,7 @@ class ApiClient {
     // Try backend if reachable
     if (this.isOnlineBackend) {
       try {
-        const res = await fetch('/api/v1/journals', {
+        const res = await fetch(`${API_BASE}/api/v1/journals`, {
           method: 'POST',
           headers: this.getAuthHeaders(),
           body: JSON.stringify(req),
@@ -149,7 +151,7 @@ class ApiClient {
   async listJournals(): Promise<JournalDetailResponse[]> {
     if (this.isOnlineBackend) {
       try {
-        const res = await fetch('/api/v1/journals', {
+        const res = await fetch(`${API_BASE}/api/v1/journals`, {
           headers: this.getAuthHeaders(),
         });
         if (res.ok) {

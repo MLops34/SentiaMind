@@ -2,7 +2,6 @@
 SentiaMind — Model Downloader Script
 Downloads fine-tuned DistilBERT/RoBERTa model weights into local directory.
 """
-import os
 import sys
 from pathlib import Path
 

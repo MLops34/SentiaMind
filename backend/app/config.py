@@ -3,6 +3,7 @@ SentiaMind — Application Configuration
 Reads all settings from environment variables / .env file.
 """
 from functools import lru_cache
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,6 +25,15 @@ class Settings(BaseSettings):
     database_url: str = (
         "postgresql+asyncpg://sentia:sentia_pass@localhost:5432/sentiamind"
     )
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def assemble_db_connection(cls, v: str) -> str:
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+asyncpg://", 1)
+        if v.startswith("postgresql://") and not v.startswith("postgresql+"):
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
 
     # ── Redis ────────────────────────────────────────────────────
     redis_url: str = "redis://localhost:6379/0"
@@ -54,8 +64,15 @@ class Settings(BaseSettings):
 
     @property
     def master_key_bytes(self) -> bytes:
-        """Decode the hex master encryption key to raw bytes."""
-        return bytes.fromhex(self.master_encryption_key)
+        """Decode the hex master encryption key to 32 raw bytes (with SHA-256 fallback)."""
+        try:
+            raw = bytes.fromhex(self.master_encryption_key)
+            if len(raw) == 32:
+                return raw
+        except ValueError:
+            pass
+        import hashlib
+        return hashlib.sha256(self.master_encryption_key.encode("utf-8")).digest()
 
     @property
     def is_production(self) -> bool:

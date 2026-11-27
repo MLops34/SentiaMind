@@ -2,7 +2,6 @@
 SentiaMind — DistilBERT Emotion Classifier Fine-Tuning Pipeline
 Fine-tunes DistilBERT on multi-class mental health emotion datasets.
 """
-import os
 import argparse
 import numpy as np
 from datasets import load_dataset

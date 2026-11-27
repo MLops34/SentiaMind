@@ -47,7 +47,7 @@ export const JournalPage: React.FC<JournalPageProps> = ({
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
-        } catch (_) {
+        } catch {
           // ignore
         }
       }

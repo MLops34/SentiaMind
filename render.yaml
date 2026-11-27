@@ -1,0 +1,59 @@
+# ──────────────────────────────────────────────────────────────────
+# SentiaMind — Render Infrastructure Blueprint
+# Deploys Managed PostgreSQL + FastAPI Backend + React Static Frontend
+# ──────────────────────────────────────────────────────────────────
+
+services:
+  # ── Backend API (FastAPI) ─────────────────────────────────────────
+  - type: web
+    name: sentiamind-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install --no-cache-dir -r requirements.txt && alembic upgrade head
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sentiamind-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MASTER_ENCRYPTION_KEY
+        generateValue: true
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: sentiamind-frontend
+          property: host
+
+  # ── Frontend (React SPA) ──────────────────────────────────────────
+  - type: web
+    name: sentiamind-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    plan: free
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: sentiamind-backend
+          property: host
+
+databases:
+  # ── PostgreSQL Database ───────────────────────────────────────────
+  - name: sentiamind-db
+    databaseName: sentiamind
+    user: sentia
+    plan: free
